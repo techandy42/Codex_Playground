@@ -14,11 +14,12 @@ GRID_WIDTH = WIDTH // GRID_SIZE
 GRID_HEIGHT = HEIGHT // GRID_SIZE
 
 # Colors
-WHITE = (255, 255, 255)
+# Darker background for "dark mode"
+WHITE = (220, 220, 220)
 BLACK = (0, 0, 0)
+BG_COLOR = (30, 30, 30)
 GREEN = (0, 255, 0)
 RED = (255, 0, 0)
-BLUE = (0, 0, 255)
 
 # Fonts
 FONT = pygame.font.SysFont('arial', 24)
@@ -31,10 +32,8 @@ clock = pygame.time.Clock()
 
 
 def draw_grid():
-    for x in range(0, WIDTH, GRID_SIZE):
-        pygame.draw.line(screen, BLACK, (x, 0), (x, HEIGHT))
-    for y in range(0, HEIGHT, GRID_SIZE):
-        pygame.draw.line(screen, BLACK, (0, y), (WIDTH, y))
+    """Placeholder to keep compatibility; grid disabled for dark mode."""
+    pass
 
 
 class Snake:
@@ -46,7 +45,11 @@ class Snake:
     def move(self):
         head_x, head_y = self.positions[0]
         dir_x, dir_y = self.direction
-        new_pos = ((head_x + dir_x) % GRID_WIDTH, (head_y + dir_y) % GRID_HEIGHT)
+        new_x = head_x + dir_x
+        new_y = head_y + dir_y
+        if new_x < 0 or new_x >= GRID_WIDTH or new_y < 0 or new_y >= GRID_HEIGHT:
+            raise Exception('Wall Collision')
+        new_pos = (new_x, new_y)
         if new_pos in self.positions:
             raise Exception('Collision')
         self.positions.insert(0, new_pos)
@@ -83,16 +86,28 @@ class Food:
 
 
 def game_over_screen(score):
-    screen.fill(BLACK)
-    game_over_text = LARGE_FONT.render('Game Over', True, RED)
-    score_text = FONT.render(f'Score: {score}', True, WHITE)
-    screen.blit(game_over_text, game_over_text.get_rect(center=(WIDTH//2, HEIGHT//3)))
-    screen.blit(score_text, score_text.get_rect(center=(WIDTH//2, HEIGHT//2)))
-    pygame.display.flip()
-    pygame.time.wait(3000)
+    """Display game over screen and return player's choice."""
+    while True:
+        screen.fill(BG_COLOR)
+        game_over_text = LARGE_FONT.render('Game Over', True, RED)
+        score_text = FONT.render(f'Score: {score}', True, WHITE)
+        prompt_text = FONT.render('Press R to Restart or Q to Quit', True, WHITE)
+        screen.blit(game_over_text, game_over_text.get_rect(center=(WIDTH//2, HEIGHT//3)))
+        screen.blit(score_text, score_text.get_rect(center=(WIDTH//2, HEIGHT//2)))
+        screen.blit(prompt_text, prompt_text.get_rect(center=(WIDTH//2, HEIGHT*2//3)))
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return 'quit'
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_r:
+                    return 'restart'
+                if event.key == pygame.K_q:
+                    return 'quit'
 
 
-def main():
+def game_loop():
     snake = Snake()
     food = Food(snake.positions)
     score = 0
@@ -101,7 +116,7 @@ def main():
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                running = False
+                return 'quit'
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_UP and snake.direction != (0, 1):
                     snake.direction = (0, -1)
@@ -115,25 +130,30 @@ def main():
         try:
             snake.move()
         except Exception:
-            game_over_screen(score)
-            return
+            return game_over_screen(score)
 
         if snake.positions[0] == food.position:
             snake.grow()
             score += 1
             food = Food(snake.positions)
 
-        screen.fill(WHITE)
+        screen.fill(BG_COLOR)
         draw_grid()
         snake.draw()
         food.draw()
 
-        score_text = FONT.render(f'Score: {score}', True, BLUE)
+        score_text = FONT.render(f'Score: {score}', True, WHITE)
         screen.blit(score_text, (5, 5))
 
         pygame.display.flip()
         clock.tick(10)
 
+
+def main():
+    while True:
+        result = game_loop()
+        if result != 'restart':
+            break
     pygame.quit()
 
 
