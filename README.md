@@ -8,7 +8,14 @@ of food you eat will make the snake grow longer and increase your score.
 ## Installation
 
 1. Ensure you have Python 3 installed.
-2. Install the required dependencies:
+2. *(Recommended)* Create a virtual environment to keep dependencies isolated:
+
+```bash
+python3 -m venv venv
+source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+```
+
+3. Install the required dependencies:
 
 ```bash
 pip install pygame
@@ -16,7 +23,7 @@ pip install pygame
 
 ## Running the Game
 
-Execute the game script using Python:
+Activate the virtual environment if you created one, then run the game script:
 
 ```bash
 python snake_game.py
@@ -24,6 +31,12 @@ python snake_game.py
 
 Use the arrow keys to control the snake. The game ends if the snake collides
 with itself. Your score is displayed in the corner and on the game over screen.
+
+When you're done playing, exit the virtual environment with:
+
+```bash
+deactivate
+```
 
 ## Files
 
