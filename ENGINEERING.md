@@ -37,12 +37,20 @@ Manages the food item that the snake must collect.
 - **`random_position()`** – Finds a random valid grid position.
 - **`draw()`** – Draws the food square on the screen.
 
+### `get_ai_direction(snake, food)`
+Simple helper that chooses a valid move bringing the snake closer to the food.
+Used when the game runs in AI mode.
+
 ### `game_over_screen(score)`
 Displays a simple end screen showing the player's final score. Waits a few
 seconds before returning control.
 
+### `start_menu()`
+Initial menu that lets the user pick whether to play manually or let the AI
+control the snake. Returns `True` for AI mode and `False` for human mode.
+
 ### `main()`
-Main game loop:
+Main entry point:
 1. Initializes `Snake` and `Food` objects and keeps track of the score.
 2. Processes user input for arrow keys to change direction.
 3. Moves the snake each frame and checks for collisions.
