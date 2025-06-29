@@ -107,7 +107,27 @@ def game_over_screen(score):
                     return 'quit'
 
 
-def game_loop():
+def get_ai_direction(snake, food):
+    """Return a direction tuple for the AI to move toward the food."""
+    head_x, head_y = snake.positions[0]
+    directions = [(0, -1), (0, 1), (-1, 0), (1, 0)]  # Up, Down, Left, Right
+    valid_moves = []
+    for dir_x, dir_y in directions:
+        new_x = head_x + dir_x
+        new_y = head_y + dir_y
+        if (0 <= new_x < GRID_WIDTH and 0 <= new_y < GRID_HEIGHT and
+                (new_x, new_y) not in snake.positions):
+            valid_moves.append((dir_x, dir_y))
+    if not valid_moves:
+        return snake.direction
+    def distance(move):
+        new_x = head_x + move[0]
+        new_y = head_y + move[1]
+        return abs(food.position[0] - new_x) + abs(food.position[1] - new_y)
+    return min(valid_moves, key=distance)
+
+
+def game_loop(ai_mode=False):
     snake = Snake()
     food = Food(snake.positions)
     score = 0
@@ -117,7 +137,7 @@ def game_loop():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return 'quit'
-            elif event.type == pygame.KEYDOWN:
+            elif not ai_mode and event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_UP and snake.direction != (0, 1):
                     snake.direction = (0, -1)
                 elif event.key == pygame.K_DOWN and snake.direction != (0, -1):
@@ -126,6 +146,9 @@ def game_loop():
                     snake.direction = (-1, 0)
                 elif event.key == pygame.K_RIGHT and snake.direction != (-1, 0):
                     snake.direction = (1, 0)
+
+        if ai_mode:
+            snake.direction = get_ai_direction(snake, food)
 
         try:
             snake.move()
@@ -149,9 +172,33 @@ def game_loop():
         clock.tick(10)
 
 
-def main():
+def start_menu():
+    """Display a menu allowing the player to choose Human or AI mode."""
     while True:
-        result = game_loop()
+        screen.fill(BG_COLOR)
+        title_text = LARGE_FONT.render('Snake Game', True, GREEN)
+        prompt_text = FONT.render('Press H for Human or A for AI', True, WHITE)
+        screen.blit(title_text, title_text.get_rect(center=(WIDTH//2, HEIGHT//3)))
+        screen.blit(prompt_text, prompt_text.get_rect(center=(WIDTH//2, HEIGHT//2)))
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return None
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_h:
+                    return False
+                if event.key == pygame.K_a:
+                    return True
+
+
+def main():
+    ai_mode = start_menu()
+    if ai_mode is None:
+        pygame.quit()
+        return
+    while True:
+        result = game_loop(ai_mode)
         if result != 'restart':
             break
     pygame.quit()

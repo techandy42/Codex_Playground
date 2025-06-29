@@ -29,8 +29,10 @@ Activate the virtual environment if you created one, then run the game script:
 python snake_game.py
 ```
 
-Use the arrow keys to control the snake. The game ends if the snake collides
-with itself. Your score is displayed in the corner and on the game over screen.
+When the game starts you can choose to play yourself or watch the built-in AI
+play. Use the arrow keys in human mode to control the snake. The game ends if
+the snake collides with itself. Your score is displayed in the corner and on the
+game over screen.
 
 When you're done playing, exit the virtual environment with:
 
